@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styled, {createGlobalStyle} from "styled-components";
-import {motion} from "framer-motion";
+import {AnimatePresence, motion} from "framer-motion";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -97,35 +97,51 @@ const Score = styled.div`
     font-size: 20px;
 `;
 
+const BtnVar = {
+    hover: { scale: 1.3 }
+}
+
 
 function App() {
-  return (
-      <>
-          <GlobalStyle/>
-          <Wrapper>
-              <Title>Pomodoro</Title>
-              <Main>
-                  <Box>25</Box>
-                  <Between>
-                      <Circle />
-                      <Circle />
-                  </Between>
-                  <Box>00</Box>
-              </Main>
-              <Button>{"||"}</Button>
-              <Recode>
-                  <Counter>
-                      <Score>0/4</Score>
-                      <Name>ROUND</Name>
-                  </Counter>
-                  <Counter>
-                      <Score>0/12</Score>
-                      <Name>GOAL</Name>
-                  </Counter>
-              </Recode>
-          </Wrapper>
-      </>
-  );
+    const [ clicked, setClick ] = useState(false);
+    const onClick = () => setClick((prev) => !prev);
+
+    return (
+        <>
+            <GlobalStyle/>
+            <Wrapper>
+                <AnimatePresence>
+                    <Title>Pomodoro</Title>
+                    <Main>
+                        <Box>25</Box>
+                        <Between>
+                            <Circle />
+                            <Circle />
+                        </Between>
+                        <Box>00</Box>
+                    </Main>
+                    <Button
+                        onClick={onClick}
+                        variants={BtnVar}
+                        whileHover="hover"
+                    >
+                        {clicked ? "▶" : "||"}
+                    </Button>
+                    <Recode>
+                        <Counter>
+                            <Score>0/4</Score>
+                            <Name>ROUND</Name>
+                        </Counter>
+                        <Counter>
+                            <Score>0/12</Score>
+                            <Name>GOAL</Name>
+                        </Counter>
+                    </Recode>
+                </AnimatePresence>
+            </Wrapper>
+        </>
+    );
+
 }
 
 export default App;
