@@ -1,6 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled, {createGlobalStyle} from "styled-components";
 import {AnimatePresence, motion} from "framer-motion";
+import {useRecoilState} from "recoil";
+import {clickAtom, timerAtom} from "./Atom";
 
 const GlobalStyle = createGlobalStyle`
     body {
@@ -101,43 +103,84 @@ const BtnVar = {
     hover: { scale: 1.3 }
 }
 
+const BoxVar = {
+    start: {
+        scale: 0.5
+    },
+
+    end: {
+        scale: 1,
+        transition: {
+            type: "spring",
+            bounce: 0.3
+        }
+    }
+}
+
 
 function App() {
-    const [ clicked, setClick ] = useState(false);
+    const [ clicked, setClick ] = useRecoilState(clickAtom);
+    const [ timer, setTimer ] = useRecoilState(timerAtom);
     const onClick = () => setClick((prev) => !prev);
+
+    useEffect(() => {
+        if(clicked) {
+            const id = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+
+            if(timer === 0) {
+                clearInterval(id);
+            }
+
+            return() => clearInterval(id);
+        }
+    }, [timer, clicked]);
+
 
     return (
         <>
             <GlobalStyle/>
             <Wrapper>
+                <Title>Pomodoro</Title>
                 <AnimatePresence>
-                    <Title>Pomodoro</Title>
                     <Main>
-                        <Box>25</Box>
+                        <Box
+                            variants={BoxVar}
+                            initial="start"
+                            animate="end"
+                            key={"min"+Math.floor(timer/60)}>
+                            {Math.floor(timer/60)}</Box>
                         <Between>
-                            <Circle />
-                            <Circle />
+                            <Circle/>
+                            <Circle/>
                         </Between>
-                        <Box>00</Box>
+                        <Box
+                            variants={BoxVar}
+                            initial="start"
+                            animate="end"
+                            key={"sec"+timer}>
+                            {(timer % 60).toString().padStart(2, '0')}</Box>
                     </Main>
                     <Button
                         onClick={onClick}
                         variants={BtnVar}
                         whileHover="hover"
+                        key={clicked.toString()}
                     >
                         {clicked ? "▶" : "||"}
                     </Button>
-                    <Recode>
-                        <Counter>
-                            <Score>0/4</Score>
-                            <Name>ROUND</Name>
-                        </Counter>
-                        <Counter>
-                            <Score>0/12</Score>
-                            <Name>GOAL</Name>
-                        </Counter>
-                    </Recode>
                 </AnimatePresence>
+                <Recode>
+                    <Counter>
+                        <Score>0/4</Score>
+                        <Name>ROUND</Name>
+                    </Counter>
+                    <Counter>
+                        <Score>0/12</Score>
+                        <Name>GOAL</Name>
+                    </Counter>
+                </Recode>
             </Wrapper>
         </>
     );
