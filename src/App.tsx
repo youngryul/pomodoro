@@ -121,6 +121,8 @@ const BoxVar = {
 function App() {
     const [ clicked, setClick ] = useRecoilState(clickAtom);
     const [ timer, setTimer ] = useRecoilState(timerAtom);
+    const [ round, setRound ] = useState(0);
+    const [ goal, setGoal ] = useState(0);
     const onClick = () => setClick((prev) => !prev);
 
     useEffect(() => {
@@ -131,6 +133,15 @@ function App() {
 
             if(timer === 0) {
                 clearInterval(id);
+                setTimer(1500);
+                setClick(false);
+                if( round === 4) {
+                    setGoal((prev) => prev + 1);
+                    setRound(0);
+                }
+                else {
+                    setRound((prev) => prev + 1);
+                }
             }
 
             return() => clearInterval(id);
@@ -168,16 +179,16 @@ function App() {
                         whileHover="hover"
                         key={clicked.toString()}
                     >
-                        {clicked ? "▶" : "||"}
+                        {clicked ? "||" : "▶"}
                     </Button>
                 </AnimatePresence>
                 <Recode>
                     <Counter>
-                        <Score>0/4</Score>
+                        <Score>{round}/4</Score>
                         <Name>ROUND</Name>
                     </Counter>
                     <Counter>
-                        <Score>0/12</Score>
+                        <Score>{goal}/12</Score>
                         <Name>GOAL</Name>
                     </Counter>
                 </Recode>
